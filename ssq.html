@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Оплата через Telegram-бота</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #2aabee;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1b8cd8;
+        }
+
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Выберите сумму для оплаты</h1>
+        <a href="https://t.me/your_bot_username?start=pay_5">
+            <button>Оплатить 5 USD</button>
+        </a>
+        <a href="https://t.me/your_bot_username?start=pay_10">
+            <button>Оплатить 10 USD</button>
+        </a>
+        <a href="https://t.me/your_bot_username?start=pay_20">
+            <button>Оплатить 20 USD</button>
+        </a>
+    </div>
+</body>
+</html>
