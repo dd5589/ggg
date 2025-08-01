@@ -2,62 +2,656 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Оплата через Telegram-бота</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Билетная система madk1d</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .bot-avatar {
+            width: 50px;
+            height: 50px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+        
+        .bot-info {
+            flex: 1;
+        }
+        
+        .bot-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .bot-status {
+            font-size: 14px;
+            color: #ecf0f1;
+        }
+        
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f0f2f5;
             display: flex;
             flex-direction: column;
-            align-items: center;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            background: #ffffff;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background: #dbf8c6;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .keyboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .keyboard-button {
+            padding: 10px 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        
+        .keyboard-button:hover {
+            background: #2980b9;
+        }
+        
+        .inline-keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .inline-button {
+            padding: 12px 20px;
+            background: #ffffff;
+            border: 1px solid #3498db;
+            color: #3498db;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        .inline-button:hover {
+            background: #3498db;
+            color: white;
+        }
+        
+        .input-container {
+            display: flex;
+            padding: 15px;
+            background: #f0f2f5;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+        }
+        
+        .send-button {
+            width: 50px;
+            height: 50px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
             justify-content: center;
-            height: 100vh;
+            align-items: center;
+            font-size: 20px;
         }
-
-        .container {
-            background: white;
-            padding: 30px 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        
+        .ticket-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .ticket-item:hover {
+            background: #f9f9f9;
+        }
+        
+        .ticket-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .ticket-details {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 14px;
+        }
+        
+        .ticket-price {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .ticket-stock {
+            color: #27ae60;
+        }
+        
+        .event-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .info-row {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .info-icon {
+            width: 24px;
             text-align: center;
+            margin-right: 10px;
+            color: #3498db;
         }
-
-        h1 {
+        
+        .payment-container {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .payment-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .payment-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
             margin-bottom: 20px;
         }
-
-        button {
-            padding: 12px 24px;
-            margin: 10px;
-            border: none;
-            border-radius: 8px;
-            background-color: #2aabee;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
+        
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #c8e6c9;
         }
-
-        button:hover {
-            background-color: #1b8cd8;
+        
+        .loader {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(52, 152, 219, 0.3);
+            border-radius: 50%;
+            border-top: 5px solid #3498db;
+            animation: spin 1s linear infinite;
+            margin: 20px 0;
         }
-
-        a {
-            text-decoration: none;
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .success-icon {
+            font-size: 60px;
+            color: #27ae60;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Выберите сумму для оплаты</h1>
-        <a href="https://t.me/your_bot_username?start=pay_5">
-            <button>Оплатить 5 USD</button>
-        </a>
-        <a href="https://t.me/your_bot_username?start=pay_10">
-            <button>Оплатить 10 USD</button>
-        </a>
-        <a href="https://t.me/your_bot_username?start=pay_20">
-            <button>Оплатить 20 USD</button>
-        </a>
+        <div class="header">
+            <div class="bot-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="bot-info">
+                <div class="bot-name">Билетный бот madk1d</div>
+                <div class="bot-status">онлайн</div>
+            </div>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="message bot-message">
+                Добро пожаловать на мероприятие madk1d!
+                Выберите действие:
+            </div>
+            
+            <div class="keyboard">
+                <button class="keyboard-button" onclick="sendButton('🎫 Купить билеты')">🎫 Купить билеты</button>
+                <button class="keyboard-button" onclick="sendButton('ℹ️ Информация о мероприятии')">ℹ️ Информация</button>
+                <button class="keyboard-button" onclick="sendButton('📊 Мои покупки')">📊 Мои покупки</button>
+            </div>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" class="message-input" id="messageInput" placeholder="Введите сообщение...">
+            <button class="send-button" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
     </div>
+
+    <script>
+        // Состояния для имитации FSM
+        const TicketState = {
+            INIT: 'init',
+            SHOWING_TICKETS: 'showing_tickets',
+            WAITING_FOR_QUANTITY: 'waiting_for_quantity',
+            PROCESSING_PAYMENT: 'processing_payment'
+        };
+        
+        let currentState = TicketState.INIT;
+        let selectedTicket = null;
+        
+        // Данные о билетах
+        const tickets = {
+            dancefloor: { 
+                name: 'Танцпол', 
+                price: 1999, 
+                stock: 12, 
+                description: 'Танцпол' 
+            },
+            pair: { 
+                name: 'Парный танцпол', 
+                price: 3799, 
+                stock: 8, 
+                description: 'Парный танцпол' 
+            },
+            early: { 
+                name: 'Танцпол (Ранний вход)', 
+                price: 2399, 
+                stock: 5, 
+                description: 'Танцпол (Ранний вход)' 
+            }
+        };
+        
+        // Функция для добавления сообщения в чат
+        function addMessage(text, isUser = false) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Функция для добавления клавиатуры
+        function addKeyboard(buttons) {
+            const chatContainer = document.getElementById('chatContainer');
+            const keyboardDiv = document.createElement('div');
+            keyboardDiv.classList.add('keyboard');
+            
+            buttons.forEach(button => {
+                const buttonEl = document.createElement('button');
+                buttonEl.classList.add('keyboard-button');
+                buttonEl.textContent = button.text;
+                buttonEl.onclick = () => sendButton(button.text);
+                keyboardDiv.appendChild(buttonEl);
+            });
+            
+            chatContainer.appendChild(keyboardDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Функция для добавления inline клавиатуры
+        function addInlineKeyboard(buttons) {
+            const chatContainer = document.getElementById('chatContainer');
+            const keyboardDiv = document.createElement('div');
+            keyboardDiv.classList.add('inline-keyboard');
+            
+            buttons.forEach(button => {
+                const buttonEl = document.createElement('button');
+                buttonEl.classList.add('inline-button');
+                buttonEl.textContent = button.text;
+                buttonEl.onclick = () => sendButton(button.text);
+                keyboardDiv.appendChild(buttonEl);
+            });
+            
+            chatContainer.appendChild(keyboardDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // Функция для отправки сообщения
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (text) {
+                addMessage(text, true);
+                input.value = '';
+                processUserInput(text);
+            }
+        }
+        
+        // Функция для отправки кнопки
+        function sendButton(text) {
+            addMessage(text, true);
+            processUserInput(text);
+        }
+        
+        // Обработка ввода пользователя
+        function processUserInput(text) {
+            switch (currentState) {
+                case TicketState.INIT:
+                    handleInitState(text);
+                    break;
+                case TicketState.SHOWING_TICKETS:
+                    handleShowingTicketsState(text);
+                    break;
+                case TicketState.WAITING_FOR_QUANTITY:
+                    handleWaitingForQuantityState(text);
+                    break;
+                case TicketState.PROCESSING_PAYMENT:
+                    // Обработка платежа
+                    break;
+            }
+        }
+        
+        // Обработка начального состояния
+        function handleInitState(text) {
+            if (text === '🎫 Купить билеты') {
+                showTickets();
+            } else if (text === 'ℹ️ Информация о мероприятии') {
+                showEventInfo();
+            } else if (text === '📊 Мои покупки') {
+                showMyPurchases();
+            } else {
+                addMessage('Пожалуйста, выберите действие из предложенных кнопок.');
+                addKeyboard([
+                    { text: '🎫 Купить билеты' },
+                    { text: 'ℹ️ Информация о мероприятии' },
+                    { text: '📊 Мои покупки' }
+                ]);
+            }
+        }
+        
+        // Показать информацию о мероприятии
+        function showEventInfo() {
+            addMessage(
+                '🎤 madk1d | 9 Августа | Новосибирск\n' +
+                '📅 Суббота, 9 августа 2025\n' +
+                '🕒 18:00 - 22:00\n' +
+                '📍 Руки ВВерх! Бар, Красный проспект, 37\n' +
+                '🔞 Возрастное ограничение: 18+'
+            );
+            
+            addKeyboard([
+                { text: '🎫 Купить билеты' },
+                { text: '📊 Мои покупки' },
+                { text: '⬅️ Назад' }
+            ]);
+        }
+        
+        // Показать билеты
+        function showTickets() {
+            currentState = TicketState.SHOWING_TICKETS;
+            
+            const buttons = [];
+            for (const [key, ticket] of Object.entries(tickets)) {
+                if (ticket.stock > 0) {
+                    buttons.push({
+                        text: `${ticket.name} (${ticket.stock} шт.) - ${ticket.price} руб.`
+                    });
+                }
+            }
+            
+            addMessage('🎟 Доступные билеты:');
+            addInlineKeyboard(buttons);
+        }
+        
+        // Обработка выбора билета
+        function handleShowingTicketsState(text) {
+            for (const [key, ticket] of Object.entries(tickets)) {
+                if (text.startsWith(ticket.name)) {
+                    selectedTicket = key;
+                    currentState = TicketState.WAITING_FOR_QUANTITY;
+                    
+                    addMessage(
+                        `Вы выбрали: ${ticket.name}\n` +
+                        `Цена: ${ticket.price} руб.\n` +
+                        `Доступно: ${ticket.stock} шт.\n\n` +
+                        'Введите количество билетов:'
+                    );
+                    return;
+                }
+            }
+            
+            addMessage('Пожалуйста, выберите билет из списка.');
+            showTickets();
+        }
+        
+        // Обработка ввода количества
+        function handleWaitingForQuantityState(text) {
+            const quantity = parseInt(text);
+            const ticket = tickets[selectedTicket];
+            
+            if (isNaN(quantity) || quantity <= 0) {
+                addMessage('Пожалуйста, введите число больше 0');
+                return;
+            }
+            
+            if (quantity > ticket.stock) {
+                addMessage(`Недостаточно билетов! Доступно только ${ticket.stock} шт.`);
+                return;
+            }
+            
+            // Имитация процесса оплаты
+            currentState = TicketState.PROCESSING_PAYMENT;
+            simulatePayment(ticket, quantity);
+        }
+        
+        // Имитация платежного процесса
+        function simulatePayment(ticket, quantity) {
+            const amount = ticket.price * quantity;
+            
+            // Показать информацию о платеже
+            addMessage(`Вы покупаете ${quantity} билет(а) на ${ticket.name}`);
+            addMessage(`Сумма к оплате: ${amount} руб.`);
+            
+            // Создать кнопку для оплаты
+            const paymentDiv = document.createElement('div');
+            paymentDiv.classList.add('payment-container');
+            paymentDiv.innerHTML = `
+                <div class="payment-title">Оплата через Telegram</div>
+                <div class="payment-info">
+                    <div class="payment-item">
+                        <span>Билеты:</span>
+                        <span>${quantity} x ${ticket.name}</span>
+                    </div>
+                    <div class="payment-item">
+                        <span>Сумма:</span>
+                        <span>${amount} руб.</span>
+                    </div>
+                </div>
+                <button class="keyboard-button" onclick="completePayment(${quantity})">
+                    <i class="fab fa-telegram"></i> Оплатить через Telegram
+                </button>
+            `;
+            
+            document.getElementById('chatContainer').appendChild(paymentDiv);
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+        }
+        
+        // Завершение оплаты
+        function completePayment(quantity) {
+            const chatContainer = document.getElementById('chatContainer');
+            
+            // Удалить предыдущие элементы оплаты
+            const paymentContainer = document.querySelector('.payment-container');
+            if (paymentContainer) {
+                paymentContainer.remove();
+            }
+            
+            // Показать индикатор загрузки
+            const loader = document.createElement('div');
+            loader.classList.add('loader');
+            chatContainer.appendChild(loader);
+            
+            // Имитация обработки платежа
+            setTimeout(() => {
+                loader.remove();
+                
+                const ticket = tickets[selectedTicket];
+                const amount = ticket.price * quantity;
+                
+                // Обновить количество билетов
+                tickets[selectedTicket].stock -= quantity;
+                
+                // Показать сообщение об успехе
+                const successDiv = document.createElement('div');
+                successDiv.classList.add('success-message');
+                successDiv.innerHTML = `
+                    <div class="success-icon"><i class="fas fa-check-circle"></i></div>
+                    <h2>Оплата прошла успешно!</h2>
+                    <p>Вы приобрели ${quantity} билет(а) на ${ticket.name}</p>
+                    <p>Сумма: ${amount} руб.</p>
+                    <p>Ваши билеты будут отправлены вам на email.</p>
+                `;
+                
+                chatContainer.appendChild(successDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                // Вернуться в начальное состояние
+                setTimeout(() => {
+                    currentState = TicketState.INIT;
+                    addMessage('Чем еще я могу помочь?');
+                    addKeyboard([
+                        { text: '🎫 Купить билеты' },
+                        { text: 'ℹ️ Информация о мероприятии' },
+                        { text: '📊 Мои покупки' }
+                    ]);
+                }, 3000);
+                
+            }, 2000);
+        }
+        
+        // Показать мои покупки
+        function showMyPurchases() {
+            addMessage('📋 Ваши покупки:');
+            
+            // Имитация запроса к базе данных
+            setTimeout(() => {
+                const purchases = [
+                    { ticket: 'Танцпол', quantity: 2, amount: 3998, date: '05.08.2025 15:30' },
+                    { ticket: 'Парный танцпол', quantity: 1, amount: 3799, date: '01.08.2025 12:45' }
+                ];
+                
+                if (purchases.length === 0) {
+                    addMessage('У вас пока нет покупок.');
+                } else {
+                    purchases.forEach(purchase => {
+                        addMessage(
+                            `🎫 ${purchase.ticket}\n` +
+                            `Количество: ${purchase.quantity} шт.\n` +
+                            `Сумма: ${purchase.amount} руб.\n` +
+                            `Дата: ${purchase.date}`
+                        );
+                    });
+                }
+                
+                addKeyboard([
+                    { text: '🎫 Купить еще билеты' },
+                    { text: '⬅️ Назад' }
+                ]);
+            }, 500);
+        }
+        
+        // Обработка нажатия Enter в поле ввода
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
 </body>
-</html>
+</html> 
